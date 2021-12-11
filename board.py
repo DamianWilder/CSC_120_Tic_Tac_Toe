@@ -1,4 +1,6 @@
 # this file will create a blank board for use in the tic-tac-toe program
+import sqlite3
+from datetime import datetime
 
 board = [['-' for i in range(3)] for x in range(3)]
 player1 = [1, 'X']
@@ -101,14 +103,61 @@ def make_move(player):
 while playing:
     make_move(player1)
     if check_win():
+        winner = 'player 1'
         break
     playing = check_if_full(board)
     if not playing:
         break
     make_move(player2)
     if check_win():
+        winner = 'player 2'
         break
     playing = check_if_full(board)
 if not playing:
     print('Draw! Game Over!')
     print()
+
+
+def insertVaribleIntoTable(date, winner):
+    try:
+        sqliteConnection = sqlite3.connect('tic_tac_toe.db')
+        cursor = sqliteConnection.cursor()
+        print("Connected to SQLite tic_tac_toe.db")
+        print()
+        
+        sqlite_create_table = '''CREATE TABLE IF NOT EXISTS Tic_Tac_Toe_Stats (
+                                    date text PRIMARY KEY,
+                                    winner text NOT NULL);'''
+        
+        cursor.execute(sqlite_create_table)
+
+        sqlite_insert = """INSERT INTO Tic_Tac_Toe_Stats (date, winner) VALUES (?, ?);"""
+
+        data_tuple = (date, winner)
+        cursor.execute(sqlite_insert, data_tuple)
+        sqliteConnection.commit()
+        print("Game History: ")
+
+        sqlite_select_query = """SELECT * from Tic_Tac_Toe_Stats ORDER BY date DESC LIMIT 10;"""
+        cursor.execute(sqlite_select_query)
+        records = cursor.fetchall()
+        print("Total games:  ", len(records))
+        print()
+        print("Printing each game")
+        for row in records:
+            print("Date: ", row[0])
+            print("Winner: ", row[1])
+            print()
+
+        cursor.close()
+
+    except sqlite3.Error as error:
+        print("Failed to insert Python variable into sqlite table", error)
+    finally:
+        if sqliteConnection:
+            sqliteConnection.close()
+            print("The SQLite connection is closed")
+
+now = datetime.now()
+reformatted_time = now.strftime("%d/%m/%Y %H:%M:%S")
+insertVaribleIntoTable(reformatted_time, winner)
