@@ -118,7 +118,6 @@ if not playing:
     print()
 
 finished_board = '\n'.join(str(item) for item in board)
-# print(row1)
 
 def insertVaribleIntoTable(date, board, winner):
     try:
