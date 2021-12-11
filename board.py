@@ -117,8 +117,10 @@ if not playing:
     print('Draw! Game Over!')
     print()
 
+finished_board = '\n'.join(str(item) for item in board)
+# print(row1)
 
-def insertVaribleIntoTable(date, winner):
+def insertVaribleIntoTable(date, board, winner):
     try:
         sqliteConnection = sqlite3.connect('tic_tac_toe.db')
         cursor = sqliteConnection.cursor()
@@ -127,13 +129,14 @@ def insertVaribleIntoTable(date, winner):
         
         sqlite_create_table = '''CREATE TABLE IF NOT EXISTS Tic_Tac_Toe_Stats (
                                     date text PRIMARY KEY,
+                                    board text NOT NULL,
                                     winner text NOT NULL);'''
         
         cursor.execute(sqlite_create_table)
 
-        sqlite_insert = """INSERT INTO Tic_Tac_Toe_Stats (date, winner) VALUES (?, ?);"""
+        sqlite_insert = """INSERT INTO Tic_Tac_Toe_Stats (date, board, winner) VALUES (?, ?, ?);"""
 
-        data_tuple = (date, winner)
+        data_tuple = (date, board, winner)
         cursor.execute(sqlite_insert, data_tuple)
         sqliteConnection.commit()
         print("Game History: ")
@@ -146,7 +149,9 @@ def insertVaribleIntoTable(date, winner):
         print("Printing each game")
         for row in records:
             print("Date: ", row[0])
-            print("Winner: ", row[1])
+            print('Board:')
+            print(row[1])
+            print("Winner: ", row[2])
             print()
 
         cursor.close()
@@ -160,4 +165,4 @@ def insertVaribleIntoTable(date, winner):
 
 now = datetime.now()
 reformatted_time = now.strftime("%d/%m/%Y %H:%M:%S")
-insertVaribleIntoTable(reformatted_time, winner)
+insertVaribleIntoTable(reformatted_time, finished_board, winner)
