@@ -110,4 +110,5 @@ while playing:
         break
     playing = check_if_full(board)
 if not playing:
-    print('Draw!')
+    print('Draw! Game Over!')
+    print()
